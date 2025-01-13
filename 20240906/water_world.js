@@ -14,11 +14,10 @@ const Common = `
         uniform float water_softlight_fact;  // range [1..200] (should be << smaller than glossy-fact)
         uniform float water_glossylight_fact; // range [1..200]
         uniform float particle_amount;
-        uniform vec3 water_color;
+        uniform vec3 water_color; 
+        uniform vec3 water_color2;
         uniform float WATER_LEVEL; // Water level (range: 0.0 - 2.0)
-        // vec3 watercolor = vec3(0.0, 0.60, 0.66); // 'transparent' low-water color (RGB)
-        vec3 watercolor2 = vec3(0.0,0.0,0.5); // deep-water color (RGB, should be darker than the low-water color)
-        vec3 water_specularcolor = vec3(1.3, 1.3, 0.9);    // specular Color (RGB) of the water-highlights
+        vec3 water_specularcolor = vec3(1.3, 1.3, 0.9);    
         vec3 light;
 
         // calculate random value
@@ -134,6 +133,7 @@ export default class Erosion extends Cesium.Primitive {
     this.water_glossylight_fact = 120; // range [1..200]
     this.particle_amount = 70;
     this.water_color = [0.0*255, 0.60*255, 0.66*255];
+    this.water_color2 = [0.0*255, 0*255, 0.5*255];
     this.WATER_LEVEL = 0.34;
     this._showLines = false;
 
@@ -276,12 +276,8 @@ export default class Erosion extends Cesium.Primitive {
                 float coastfade2 = clamp((level - height) / deepwater_fadedepth, 0., 1.);
                 float intensity = col.r * .2126 + col.g * .7152 + col.b * .0722;
                 vec3 watercolor = water_color; // 'transparent' low-water color (RGB)
-                // vec3 watercolor = vec3(water_color.x, water_color.y, water_color.z); // 'transparent' low-water color (RGB)
-                // vec3 watercolor = vec3(0.0, 0.60, 0.66); // 'transparent' low-water color (RGB)
+                vec3 watercolor2 = water_color2; // specular Color (RGB) of the water-highlights
                 watercolor = mix(watercolor * intensity, watercolor2, smoothstep(0., 1., coastfade2));
-                // watercolor = mix(water_color * intensity, watercolor2, smoothstep(0., 1., coastfade2));
-                // debugPrint("This is a log message from GLSL.");
-                // vec3 newWater = water_color;
 
 
                 vec3 r0 = vec3(uv, WATER_LEVEL);
@@ -364,6 +360,7 @@ export default class Erosion extends Cesium.Primitive {
       // water_color: () => [0.2, 0.3, 0.4],
       // water_color:  () => Cesium.Cartesian3.fromArray([0.2, 0.3, 0.4]),
       water_color:  () => Cesium.Cartesian3.fromArray(this.water_color.map((v) => v / 255.0)),
+      water_color2:  () => Cesium.Cartesian3.fromArray(this.water_color2.map((v) => v / 255.0)),
       WATER_LEVEL: () => this.WATER_LEVEL,
       // WATER_LEVEL: () => 2,
     };
